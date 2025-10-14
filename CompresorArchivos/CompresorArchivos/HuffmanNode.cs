@@ -9,19 +9,19 @@ namespace CompresorArchivos
 {
     public class HuffmanNode<T>
     {
-        public T Element { get; set; }
+        public T? Element { get; set; }
         public int Frequency { get; set; }
         public HuffmanNode<T> Left { get; set; }
         public HuffmanNode<T> Right { get; set; }
 
-        public HuffmanNode(T e, int freq)
+        public HuffmanNode(T? e, int freq)
         {
             Element = e;
             Frequency = freq;
             Left = Right = null;
         }
 
-        public HuffmanNode(T e, int freq, HuffmanNode<T> left, HuffmanNode<T> right)
+        public HuffmanNode(T? e, int freq, HuffmanNode<T> left, HuffmanNode<T> right)
         {
             Element = e;
             Frequency = freq;
@@ -30,7 +30,6 @@ namespace CompresorArchivos
         }
 
         public bool IsLeaf() => Left == null && Right == null;
-
         public int CompareTo(HuffmanNode<T> node) => Frequency.CompareTo(node.Frequency);
     }
 }
