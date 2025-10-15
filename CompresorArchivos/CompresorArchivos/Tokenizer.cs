@@ -10,7 +10,13 @@ namespace CompresorArchivos
     {
         public Tokenizer() {}
 
-        public Dictionary<char, int> TokenizeText(string text)
+        public Dictionary<char, int> TokenizeFile(string filePath)
+        {
+            string text = File.ReadAllText(filePath);
+            return TokenizeText(text);
+        }
+
+        private Dictionary<char, int> TokenizeText(string text)
         {
             Dictionary<char, int> frequencies = new Dictionary<char, int>();
 

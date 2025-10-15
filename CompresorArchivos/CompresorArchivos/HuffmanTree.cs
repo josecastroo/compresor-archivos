@@ -41,19 +41,19 @@ namespace CompresorArchivos
         public Dictionary<T, string> GenerateBits()
         {
             Dictionary<T, string> bits = new Dictionary<T, string>();
-            GenerateBitsPr(Root, "", bits);
+            GenerateBitsPriv(Root, "", bits);
             return bits;
         }
 
-        private void GenerateBitsPr(HuffmanNode<T> act, string bit, Dictionary<T, string> bits)
+        private void GenerateBitsPriv(HuffmanNode<T> act, string bit, Dictionary<T, string> bits)
         {
             if (act == null) return;
 
             if (act.IsLeaf() && (act.Element != null))
                 bits[act.Element] = bit;
 
-            GenerateBitsPr(act.Left, bit + "1", bits);
-            GenerateBitsPr(act.Right, bit + "0", bits);
+            GenerateBitsPriv(act.Left, bit + "1", bits);
+            GenerateBitsPriv(act.Right, bit + "0", bits);
 
         }
 
