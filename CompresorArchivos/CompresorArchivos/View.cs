@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Reflection;
 
 namespace CompresorArchivos
 {
@@ -17,10 +18,10 @@ namespace CompresorArchivos
             while (true)
             {
                 Console.WriteLine("\n\tMenú");
-                Console.WriteLine("\t1. Comprimir archivo");
-                Console.WriteLine("\t2. Descomprimir archivo");
-                Console.WriteLine("\t3. Salir");
-                Console.Write("\tSeleccione una opción: ");
+                Console.WriteLine("1. Comprimir archivo");
+                Console.WriteLine("2. Descomprimir archivo");
+                Console.WriteLine("3. Salir");
+                Console.Write("Seleccione una opción: ");
 
                 string opcion = Console.ReadLine();
 
@@ -43,7 +44,7 @@ namespace CompresorArchivos
 
         private void Comprimir()
         {
-            Console.Write("Ingrese la ruta del archivo a comprimir: ");
+            Console.Write("Ingrese el nombre del archivo (con extensión) a comprimir: ");
             string archivo = Console.ReadLine();
 
             if (!File.Exists(archivo))
@@ -52,8 +53,10 @@ namespace CompresorArchivos
                 return;
             }
 
-            Console.Write("Ingrese la ruta del archivo de salida (comprimido): ");
-            string archivoBin = Console.ReadLine();
+            string ruta = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string nombreArchivo = Path.GetFileName(archivo);
+            string archivoBin = Path.Combine(ruta, Path.ChangeExtension(nombreArchivo, ".bin"));
+            Console.WriteLine($"El archivo comprimido se guardará en: {archivoBin}");
 
             try
             {
@@ -69,23 +72,26 @@ namespace CompresorArchivos
 
         private void Descomprimir()
         {
-            Console.Write("Ingrese la ruta del archivo a descomprimir: ");
-            string archivo = Console.ReadLine();
+            Console.Write("Ingrese el nombre del archivo a descomprimir (.bin): ");
+            string fileName = Console.ReadLine();
+
+            string programDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string archivo = Path.Combine(programDirectory, fileName);
 
             if (!File.Exists(archivo))
             {
-                Console.WriteLine("El archivo no existe.");
+                Console.WriteLine($"El archivo '{archivo}' no existe en el directorio del programa.");
                 return;
             }
 
-            Console.Write("Ingrese la ruta del archivo de salida (descomprimido): ");
-            string archivoBin = Console.ReadLine();
+            string archivoDescomprimido = Path.Combine(programDirectory, Path.ChangeExtension(Path.GetFileNameWithoutExtension(fileName), ".txt"));
+            Console.WriteLine($"El archivo descomprimido se guardará en: {archivoDescomprimido}");
 
             try
             {
                 var (textoComprimido, HuffmanTree) = _manager.CargarArchivoComprimido(archivo);
                 string textoDescomprimido = _manager.DescomprimirArchivo(textoComprimido, HuffmanTree);
-                File.WriteAllText(archivoBin, textoDescomprimido);
+                File.WriteAllText(archivoDescomprimido, textoDescomprimido);
                 Console.WriteLine("Archivo descomprimido exitosamente.");
             }
             catch (Exception ex)
