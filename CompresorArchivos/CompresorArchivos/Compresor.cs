@@ -14,9 +14,9 @@ namespace CompresorArchivos
 
             foreach (char c in text)
             {
-                if (traductor.TryGetValue(c, out string? code))
+                if (traductor.TryGetValue(c, out string? bit))
                 {
-                    textComprimido.Append(c);
+                    textComprimido.Append(bit);
                 }
                 else
                 {
