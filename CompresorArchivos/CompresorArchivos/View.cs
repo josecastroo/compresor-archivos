@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace CompresorArchivos
 {
@@ -70,10 +71,20 @@ namespace CompresorArchivos
 
             try
             {
+                var stopwatch = new System.Diagnostics.Stopwatch();
+                stopwatch.Start();
+
                 var (textoComprimido, _, frequencies) = _manager.ComprimirArchivo(archivo);
                 _manager.GuardarArchivoComprimido(archivoBin, textoComprimido, frequencies);
+
+                stopwatch.Stop();
+
+                long tamanoOriginal = new FileInfo(archivo).Length;
+                long tamanoComprimido = new FileInfo(archivoBin).Length;
+
                 Console.WriteLine("Archivo comprimido exitosamente.");
                 MostrarTablaFrecuencias(frequencies);
+                MostrarEstadisticas(tamanoOriginal, tamanoComprimido, stopwatch.Elapsed);
             }
             catch (Exception ex)
             {
@@ -113,6 +124,17 @@ namespace CompresorArchivos
             {
                 Console.WriteLine($"Error al descomprimir: {ex.Message}");
             }
+        }
+
+        public void MostrarEstadisticas(long tamanoOriginal, long tamanoComprimido, TimeSpan tiempo)
+        {
+            double proporcion = (double)tamanoComprimido / tamanoOriginal;
+            Console.WriteLine("\nEstadísticas de Compresión");
+            Console.WriteLine($"Tamaño Original: {tamanoOriginal} bytes");
+            Console.WriteLine($"Tamaño Comprimido: {tamanoComprimido} bytes");
+            Console.WriteLine($"Proporción de Compresión: {proporcion:P2}");
+            Console.WriteLine($"Tiempo de Compresión: {tiempo.TotalMilliseconds} ms");
+            Console.WriteLine("------------------------------------");
         }
 
         private void MostrarTablaFrecuencias(Dictionary<char, int> frequencies)
