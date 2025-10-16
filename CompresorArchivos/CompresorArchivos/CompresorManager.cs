@@ -25,7 +25,7 @@ namespace CompresorArchivos
             HuffmanTree<char> huffmanTree = new HuffmanTree<char>();
             huffmanTree.BuildHuffmanTree(frequencies);
 
-            Dictionary<char, string> traductor = huffmanTree.GenerateBits();
+            Dictionary<char, string> traductor = huffmanTree.GenerarBits();
             string text = File.ReadAllText(filePath);
             string textoComprimido = _compresor.Comprimir(text, traductor);
 
@@ -42,21 +42,20 @@ namespace CompresorArchivos
             using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
             using (BinaryWriter writer = new BinaryWriter(fileStream))
             {
-                // 1. Escribir metadatos (número de símbolos)
+                // metadatos
                 writer.Write(frequencies.Count);
 
-                // 2. Escribir tabla de símbolos/frecuencias
+                // tabla de símbolos/frecuencias
                 foreach (var kvp in frequencies)
                 {
                     writer.Write(kvp.Key);
                     writer.Write(kvp.Value);
                 }
 
-                // 3. Escribir el mensaje comprimido
                 byte padding = (byte)((8 - textoComprimido.Length % 8) % 8);
                 writer.Write(padding);
 
-                List<byte> compressedBytes = new List<byte>();
+                List<byte> bytes = new List<byte>();
                 for (int i = 0; i < textoComprimido.Length; i += 8)
                 {
                     string byteString = textoComprimido.Substring(i, Math.Min(8, textoComprimido.Length - i));
@@ -64,9 +63,9 @@ namespace CompresorArchivos
                     {
                         byteString = byteString.PadRight(8, '0');
                     }
-                    compressedBytes.Add(Convert.ToByte(byteString, 2));
+                    bytes.Add(Convert.ToByte(byteString, 2));
                 }
-                writer.Write(compressedBytes.ToArray());
+                writer.Write(bytes.ToArray());
             }
         }
 
@@ -78,10 +77,8 @@ namespace CompresorArchivos
             using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
             using (BinaryReader reader = new BinaryReader(fileStream))
             {
-                // 1. Leer metadatos
                 int frequencyCount = reader.ReadInt32();
 
-                // 2. Leer tabla de frecuencias
                 for (int i = 0; i < frequencyCount; i++)
                 {
                     char character = reader.ReadChar();
@@ -89,8 +86,7 @@ namespace CompresorArchivos
                     frequencies[character] = frequency;
                 }
 
-                // 3. Leer mensaje comprimido
-                byte padding = reader.ReadByte();
+                byte lect = reader.ReadByte();
                 byte[] compressedBytes = reader.ReadBytes((int)(reader.BaseStream.Length - reader.BaseStream.Position));
                 
                 StringBuilder sb = new StringBuilder();
@@ -100,7 +96,7 @@ namespace CompresorArchivos
                 }
 
                 textoComprimido = sb.ToString();
-                textoComprimido = textoComprimido.Substring(0, textoComprimido.Length - padding);
+                textoComprimido = textoComprimido.Substring(0, textoComprimido.Length - lect);
             }
 
             HuffmanTree<char> huffmanTree = new HuffmanTree<char>();

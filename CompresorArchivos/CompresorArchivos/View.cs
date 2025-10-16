@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace CompresorArchivos
@@ -45,13 +46,22 @@ namespace CompresorArchivos
         private void Comprimir()
         {
             Console.Write("Ingrese el nombre del archivo (con extensión) a comprimir: ");
-            string archivo = Console.ReadLine();
+            string arch = Console.ReadLine();
+
+            // donde debe buscar los archivos
+            string rutaPrin = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\"));
+            string archivo = Path.Combine(rutaPrin, arch);
 
             if (!File.Exists(archivo))
             {
-                Console.WriteLine("El archivo no existe.");
+                Console.WriteLine($"El archivo '{arch}' no fue encontrado en la carpeta principal del proyecto: {rutaPrin}");
                 return;
             }
+
+            Console.WriteLine("\nContenido del archivo original");
+            string contenido = File.ReadAllText(archivo);
+            Console.WriteLine(contenido);
+            Console.WriteLine();
 
             string ruta = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string nombreArchivo = Path.GetFileName(archivo);
@@ -63,6 +73,7 @@ namespace CompresorArchivos
                 var (textoComprimido, _, frequencies) = _manager.ComprimirArchivo(archivo);
                 _manager.GuardarArchivoComprimido(archivoBin, textoComprimido, frequencies);
                 Console.WriteLine("Archivo comprimido exitosamente.");
+                MostrarTablaFrecuencias(frequencies);
             }
             catch (Exception ex)
             {
@@ -93,11 +104,45 @@ namespace CompresorArchivos
                 string textoDescomprimido = _manager.DescomprimirArchivo(textoComprimido, HuffmanTree);
                 File.WriteAllText(archivoDescomprimido, textoDescomprimido);
                 Console.WriteLine("Archivo descomprimido exitosamente.");
+
+                Console.WriteLine("\nContenido del archivo descomprimido");
+                Console.WriteLine(textoDescomprimido);
+                Console.WriteLine();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error al descomprimir: {ex.Message}");
             }
+        }
+
+        private void MostrarTablaFrecuencias(Dictionary<char, int> frequencies)
+        {
+            Console.WriteLine("\nCálculo de la frecuencia de cada símbolo:");
+            Console.WriteLine("┌─────────┬───────────┬────────────┐");
+            Console.WriteLine("│ Símbolo │ Frecuencia│ Porcentaje │");
+            Console.WriteLine("├─────────┼───────────┼────────────┤");
+
+            int totalSimbolos = frequencies.Values.Sum();
+
+            foreach (var caracter in frequencies.OrderByDescending(par => par.Value))
+            {
+                double porcentaje = (double)caracter.Value / totalSimbolos * 100;
+                string simbolo = caracter.Key.ToString();
+                if (char.IsWhiteSpace(caracter.Key))
+                {
+                    simbolo = caracter.Key switch
+                    {
+                        ' ' => "' '",
+                        '\n' => "\\n",
+                        '\r' => "\\r",
+                        '\t' => "\\t",
+                        _ => "???"
+                    };
+                }
+                Console.WriteLine($"│ {simbolo,-7} │ {caracter.Value,-9} │ {porcentaje,9:F2}% │");
+            }
+
+            Console.WriteLine("└─────────┴───────────┴────────────┘");
         }
     }
 }

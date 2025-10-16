@@ -10,9 +10,9 @@ namespace CompresorArchivos
     {
         public Tokenizer() {}
 
-        public Dictionary<char, int> TokenizeFile(string filePath)
+        public Dictionary<char, int> TokenizeFile(string ruta)
         {
-            string text = File.ReadAllText(filePath);
+            string text = File.ReadAllText(ruta);
             return TokenizeText(text);
         }
 

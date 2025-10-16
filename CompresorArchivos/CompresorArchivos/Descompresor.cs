@@ -31,7 +31,7 @@ namespace CompresorArchivos
                     current = current.Right;
                 }
 
-                if (current.IsLeaf())
+                if (current.EsHoja())
                 {
                     textoDescomprimido.Append(current.Element);
                     current = huffmanTree.Root;

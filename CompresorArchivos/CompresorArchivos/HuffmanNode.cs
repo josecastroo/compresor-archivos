@@ -29,7 +29,7 @@ namespace CompresorArchivos
             Right = right;
         }
 
-        public bool IsLeaf() => Left == null && Right == null;
+        public bool EsHoja() => Left == null && Right == null;
         public int CompareTo(HuffmanNode<T> node) => Frequency.CompareTo(node.Frequency);
     }
 }
