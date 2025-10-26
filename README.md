@@ -1,6 +1,6 @@
 # compresor-archivos
 
-## Compresor de Archivos - Instrucciones de Uso
+## Instrucciones de Uso
 
 ### Menú Principal
 Al ejecutar el programa, verás el siguiente menú:
@@ -26,3 +26,21 @@ altaComprension.txt - Es un archivo especialmente diseñado con altísima repeti
 
 ### Ubicación de Archivos Comprimidos y Descomprimidos
 Importante: Todos los archivos comprimidos (.bin) generados por la opción "Comprimir archivo" y todos los archivos descomprimidos (.txt) generados por la opción "Descomprimir archivo" siempre van a estar guardados en la misma carpeta bin\Debug\net8.0\, independientemente de dónde esté ubicado el archivo original que se está comprimiendo. Esta carpeta se encuentra dentro de la estructura del proyecto después de compilar y ejecutar el programa. Cuando comprimes un archivo, el programa automáticamente toma el archivo de la carpeta del proyecto, lo procesa, y guarda el resultado .bin en bin\Debug\net8.0\. Cuando descomprimes, el programa busca el archivo .bin en bin\Debug\net8.0\ y guarda el archivo restaurado .txt en la misma ubicación bin\Debug\net8.0\.
+
+## Decisiones de Diseño
+
+**1. Separación de Responsabilidades**
+*Decisión:* Dividir el sistema en clases especializadas (Tokenizer, Compresor, Descompresor, HuffmanTree, CompresorManager, View).
+*Justificación:* Cada clase tiene una única responsabilidad claramente definida. Tokenizer solo analiza frecuencias, Compresor solo codifica, Descompresor solo decodifica, HuffmanTree maneja la estructura del árbol, CompresorManager coordina las operaciones, y View maneja la interfaz de usuario. Esto hace el código más fácil de mantener, probar y modificar sin afectar otros componentes.
+
+**2. Formato de Archivo Binario con Metadatos Embebidos**
+*Decisión:* Guardar la tabla de frecuencias completa dentro del archivo .bin junto con los datos comprimidos.
+*Justificación:* Aunque esto aumenta el tamaño del archivo comprimido (especialmente en archivos pequeños), permite que el archivo sea autocontenido - puede ser descomprimido sin necesidad de archivos externos o información adicional. El descompresor reconstruye el árbol de Huffman idéntico usando las frecuencias guardadas, garantizando una descompresión exacta. Es un trade-off entre portabilidad y eficiencia de espacio.
+
+**3. Construcción del Árbol mediante Ordenamiento Iterativo**
+*Decisión:* Usar OrderBy() de LINQ en cada iteración al construir el árbol de Huffman en lugar de implementar una Priority Queue.
+*Justificación:* Para archivos de texto típicos con un número limitado de caracteres únicos (normalmente < 256), la diferencia de rendimiento entre O(k² log k) y O(k log k) es negligible en la práctica. Esta implementación prioriza la claridad y simplicidad del código sobre la máxima eficiencia teórica, haciéndolo más fácil de entender con propósitos educativos sin necesidad de implementar estructuras de datos adicionales.
+
+**4. Navegación del Árbol para Descompresión**
+*Decisión:* Descomprimir navegando el árbol bit por bit (izquierda para '1', derecha para '0') en lugar de crear un diccionario inverso.
+*Justificación:* Esta aproximación es la implementación estándar del algoritmo de Huffman y no requiere memoria adicional para almacenar un diccionario inverso. Aunque requiere recorrer el árbol para cada carácter, la complejidad sigue siendo O(n) donde n es el número de bits, y el árbol de Huffman tiene profundidad logarítmica promedio, haciendo las búsquedas muy rápidas. Es una solución elegante que aprovecha directamente la estructura del árbol.
